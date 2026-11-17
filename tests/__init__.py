@@ -1,0 +1,1 @@
+"""PyShoppingCart test suite."""

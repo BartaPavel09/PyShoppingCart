@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PyShoppingCart"
+version = "1.0.0"
+description = "Core E-Commerce Shopping Cart and Thread-Safe Inventory System"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Pavel Barta" }
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra -q"
