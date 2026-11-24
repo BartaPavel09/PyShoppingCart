@@ -180,7 +180,7 @@ class Store:
 
         # Synchronization helper function
         def _execute_atomic_checkout() -> Order:
-            # 1. Validate all items against current stock
+            # Validate all items against current stock
             for item in cart.items:
                 product = self.get_product(item.product_id)
                 if not product.has_stock(item.quantity):
@@ -190,7 +190,7 @@ class Store:
             if simulate_race_delay > 0.0:
                 time.sleep(simulate_race_delay)
 
-            # 2. Deduct stock for all items
+            # Deduct stock for all items
             order_items: list[OrderItem] = []
             for item in cart.items:
                 product = self.get_product(item.product_id)
@@ -205,7 +205,7 @@ class Store:
                     )
                 )
 
-            # 3. Create immutable confirmed Order snapshot
+            # Create immutable confirmed Order snapshot
             order_id = f"ORD-{uuid.uuid4().hex[:8].upper()}"
             order = Order(
                 id=order_id,
@@ -218,7 +218,7 @@ class Store:
                 status=OrderStatus.CONFIRMED,
             )
 
-            # 4. Save order to store and clear the temporary cart
+            # Save order to store and clear the temporary cart
             self._orders[order.id] = order
             cart.clear()
             return order

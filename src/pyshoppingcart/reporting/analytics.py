@@ -45,21 +45,21 @@ def generate_order_summary(
 
     Architectural Rationale (Functional vs. Imperative):
     ---------------------------------------------------
-      1. Declarative Intent over Step-by-Step Mutation:
-         An imperative implementation relies on initializing mutable accumulators
-         (e.g. `revenue = 0; count = 0; for o in orders: revenue += o.total_cents`).
-         The functional approach uses `filter` and `map` to state *what* output
-         is desired without procedural loop mechanics.
-      2. Purity & Absence of Side Effects:
-         This function does not mutate the input collection, objects, or any global
-         state. Given the same inputs, it deterministically returns the exact same summary.
-      3. Thread Safety & Immutability:
-         Because no intermediate shared accumulator is mutated during computation,
-         multiple concurrent worker threads can run reports on store history
-         simultaneously without data races or lock contention.
-      4. Composability:
-         Filtering predicates and mapping transforms are modular callables that
-         can be independently tested, reused, or swapped.
+    - Declarative Intent:
+      An imperative implementation relies on initializing mutable accumulators
+      (e.g. `revenue = 0; count = 0; for o in orders: revenue += o.total_cents`).
+      The functional approach uses `filter` and `map` to state *what* output
+      is desired without procedural loop mechanics.
+    - Purity & Absence of Side Effects:
+      This function does not mutate the input collection, objects, or any global
+      state. Given the same inputs, it deterministically returns the exact same summary.
+    - Thread Safety & Immutability:
+      Because no intermediate shared accumulator is mutated during computation,
+      multiple concurrent worker threads can run reports on store history
+      simultaneously without data races or lock contention.
+    - Composability:
+      Filtering predicates and mapping transforms are modular callables that
+      can be independently tested, reused, or swapped.
 
     Args:
         orders: Immutable sequence of orders to analyze.
@@ -72,7 +72,7 @@ def generate_order_summary(
     """
     target_status = OrderStatus(status) if isinstance(status, (str, OrderStatus)) and status else None
 
-    # Step 1: Compose declarative predicate using pure functions
+    # Compose declarative predicate using pure functions
     def matches_criteria(order: Order) -> bool:
         if customer_id and order.customer_id != customer_id:
             return False
@@ -82,7 +82,7 @@ def generate_order_summary(
             return False
         return True
 
-    # Step 2: Declarative filtering using filter()
+    # Declarative filtering using filter()
     filtered_orders: list[Order] = list(filter(matches_criteria, orders))
 
     total_count = len(filtered_orders)
@@ -96,7 +96,7 @@ def generate_order_summary(
             matching_order_ids=(),
         )
 
-    # Step 3: Declarative mapping using map() and reduction
+    # Declarative mapping using map() and reduction
     revenues = list(map(lambda o: o.total_cents, filtered_orders))
     discounts = list(map(lambda o: o.discount_cents, filtered_orders))
     units_per_order = list(map(lambda o: sum(item.quantity for item in o.items), filtered_orders))

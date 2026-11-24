@@ -21,34 +21,34 @@ A clean, thread-safe shopping cart and inventory management engine written in Py
 
 ## Architecture & Design
 
-### 1. Domain Models (`src/pyshoppingcart/models/`)
+### Domain Models (`src/pyshoppingcart/models/`)
 - **`Product`**: Encapsulates item catalog data, price in integer cents, current stock, and stock mutation methods (`deduct_stock`, `restock`). Invariants enforce positive prices and non-negative stock.
 - **`Customer`**: Represents a registered customer with unique ID, name, and email.
 - **`Cart` & `CartItem`**: Tracks active selections. Validates requested quantities against available stock without reserving inventory prematurely. Implements `__iter__` for item iteration.
 - **`Order` & `OrderItem`**: Immutable snapshot created upon successful checkout, capturing frozen product names, unit prices, applied discounts, and timestamp.
 
-### 2. Pricing & Discounts (`src/pyshoppingcart/pricing/`)
+### Pricing & Discounts (`src/pyshoppingcart/pricing/`)
 - `DiscountPolicy`: Abstract base class for promotional strategies.
 - `BulkThresholdDiscount`: Fixed cent deduction if the cart subtotal meets or exceeds a spending threshold (e.g., $15.00 off orders over $100.00).
 - `PercentageDiscount`: Percentage reduction applied to the remaining balance (e.g., 10% promo code).
 - **Stacking Rule:**
-  1. Threshold discounts apply first against the gross subtotal.
-  2. Percentage discounts apply subsequently to the remaining balance.
-  3. The final total is clamped at `max(0, balance)` so discounts can never cause a negative balance.
+  - Threshold discounts apply first against the gross subtotal.
+  - Percentage discounts apply subsequently to the remaining balance.
+  - The final total is clamped at `max(0, balance)` so discounts can never cause a negative balance.
 
-### 3. Concurrency & Synchronization (`src/pyshoppingcart/store.py`)
+### Concurrency & Synchronization (`src/pyshoppingcart/store.py`)
 In a multi-user store, checkout operations compete for the same inventory. `Store.checkout` synchronizes stock deduction using a shared `threading.Lock`:
 - The lock guards the critical section: reading stock, validating availability, and decrementing quantity.
 - **Acceptance Scenario:** If multiple concurrent worker threads attempt to buy the last remaining unit of a product (`stock = 1`), exactly **one** thread succeeds. All other threads receive an `InsufficientStockError`, and the inventory stock remains strictly non-negative (`stock == 0`).
 
-### 4. Functional Analytics & Rationale (`src/pyshoppingcart/reporting/`)
+### Functional Analytics & Rationale (`src/pyshoppingcart/reporting/`)
 The order summary report (`generate_order_summary`) is implemented as a **pure function** using `filter()`, `map()`, and `reduce()`/`sum`:
 
 #### Why a Functional Pipeline over an Imperative Loop?
-1. **Declarative Clarity:** Expresses *what* transformations are needed (filter matching orders $\rightarrow$ map to revenues $\rightarrow$ reduce to total) rather than managing low-level loop counters and mutable accumulator variables.
-2. **Purity & No Side Effects:** The function does not modify input collections or global state. Given the same inputs, it deterministically returns the same result.
-3. **Thread Safety & Immutability:** Because no shared state is mutated during execution, multiple threads can safely generate reports concurrently without locks.
-4. **Composability:** Filtering predicates and mapping functions can be easily isolated, tested, and composed.
+- **Declarative Clarity:** Expresses *what* transformations are needed (filter matching orders $\rightarrow$ map to revenues $\rightarrow$ reduce to total) rather than managing low-level loop counters and mutable accumulator variables.
+- **Purity & No Side Effects:** The function does not modify input collections or global state. Given the same inputs, it deterministically returns the same result.
+- **Thread Safety & Immutability:** Because no shared state is mutated during execution, multiple threads can safely generate reports concurrently without locks.
+- **Composability:** Filtering predicates and mapping functions can be easily isolated, tested, and composed.
 
 ---
 
@@ -86,15 +86,15 @@ PyShoppingCart/
 Requires Python 3.11+.
 
 ```bash
-# 1. Clone repository
+# Clone repository
 git clone https://github.com/BartaPavel09/PyShoppingCart.git
 cd PyShoppingCart
 
-# 2. Create and activate a virtual environment
+# Create and activate a virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
 
-# 3. Install dependencies and package in editable mode
+# Install dependencies and package in editable mode
 pip install pytest
 pip install -e .
 ```

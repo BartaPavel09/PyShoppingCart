@@ -43,13 +43,11 @@ class PricingEngine:
     """Evaluates and combines multiple discount policies sequentially.
 
     Stacking Rules:
-      1. Ordering Precedence:
-         - Bulk/Threshold discounts (fixed cent reduction) are evaluated first against gross subtotal.
-         - Percentage discounts are evaluated second against the remaining balance.
-      2. Floor Invariant:
-         - The final payable total is strictly clamped with max(0, balance).
-         - Total discount is clamped to min(subtotal_cents, sum_of_discounts).
-      3. Integer cents arithmetic exclusively (zero floating point drift).
+      - Ordering Precedence: Bulk/Threshold discounts apply first against gross subtotal;
+        Percentage discounts apply subsequently against the remaining balance.
+      - Floor Invariant: The final payable total is clamped with max(0, balance);
+        discounts never exceed subtotal.
+      - Integer cents arithmetic exclusively without floating point drift.
     """
 
     def __init__(self, policies: list[DiscountPolicy] | None = None) -> None:

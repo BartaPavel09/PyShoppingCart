@@ -2,10 +2,10 @@
 
 Acceptance Scenario:
   When multiple concurrent worker threads attempt to checkout the last item in stock:
-  1. Exactly ONE checkout succeeds.
-  2. All other threads raise InsufficientStockError.
-  3. Product inventory remains non-negative (>= 0).
-  4. Invariant holds: final_stock == initial_stock - quantity * successful_checkouts.
+  - Exactly one checkout succeeds.
+  - All other threads raise InsufficientStockError.
+  - Product inventory remains non-negative (>= 0).
+  - Invariant holds: final_stock == initial_stock - quantity * successful_checkouts.
 """
 
 from __future__ import annotations

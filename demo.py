@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """PyShoppingCart Standalone Scripted Demo.
 
-Demonstrates all three course tiers:
-  - Easy Tier: Domain models, cart ops, stock validation, checkout, JSON persistence.
-  - Medium Tier: Discounts, custom generators/iterators, decorators, pure functional report.
-  - Advanced Tier: Multi-threaded race condition on last stock unit with threading.Lock synchronization.
+Demonstrates:
+  - Domain models, cart operations, stock validation, checkout, and JSON persistence.
+  - Discount policies, custom generators/iterators, decorators, and pure functional reporting.
+  - Multi-threaded race condition on last stock unit with threading.Lock synchronization.
 """
 
 from __future__ import annotations
@@ -45,9 +45,9 @@ def main() -> None:
     header("PyShoppingCart - Full Architecture & Concurrency Demo")
 
     # =========================================================================
-    # 1. Store Setup & Catalog Seeding (Easy Tier)
+    # Store Setup & Catalog Seeding
     # =========================================================================
-    step("1. Initializing Store & Seeding Catalog (Integer Cents Currency)")
+    step("Initializing Store & Seeding Catalog (Integer Cents Currency)")
     pricing_engine = PricingEngine(
         policies=[
             # $15.00 off orders over $100.00
@@ -82,9 +82,9 @@ def main() -> None:
     print(f"  [Registered] {charlie}")
 
     # =========================================================================
-    # 2. Cart Operations & Stock Limit Validation (Easy Tier)
+    # Cart Operations & Stock Limit Validation
     # =========================================================================
-    step("2. Cart Operations & Stock Limits Validation")
+    step("Cart Operations & Stock Limits Validation")
     cart_alice = store.get_or_create_cart(alice.id)
     store.add_to_cart(alice.id, p_laptop.id, quantity=1)
     store.add_to_cart(alice.id, p_mouse.id, quantity=2)
@@ -101,12 +101,12 @@ def main() -> None:
         print(f"  [REJECTED AS EXPECTED] {exc}")
 
     # =========================================================================
-    # 3. Pricing & Discount Stacking Engine (Medium Tier)
+    # Pricing & Discount Stacking Engine
     # =========================================================================
-    step("3. Pricing Engine & Discount Stacking Policy")
+    step("Pricing Engine & Discount Stacking Policy")
     # Subtotal: 1 Laptop ($1200) + 2 Mice ($70) = $1270 (127000 cents)
-    # Applied Policy 1: BulkThresholdDiscount ($15 off over $100) -> balance: 125500 cents
-    # Applied Policy 2: PercentageDiscount (10% off promo) -> 10% of 125500 = 12550 cents
+    # BulkThresholdDiscount ($15 off over $100) -> balance: 125500 cents
+    # PercentageDiscount (10% off promo) -> 10% of 125500 = 12550 cents
     # Final Total: 125500 - 12550 = 112950 cents ($1,129.50)
     promo = PercentageDiscount(code="SPRING10", percentage=10)
     pricing = store.pricing_engine.calculate_pricing(cart_alice, extra_policies=[promo])
@@ -117,9 +117,9 @@ def main() -> None:
     print(f"  Final Total:     {cents_to_usd(pricing.total_cents)}")
 
     # =========================================================================
-    # 4. Atomic Checkout Flow (Easy Tier)
+    # Atomic Checkout Flow
     # =========================================================================
-    step("4. Performing Atomic Checkout for Alice")
+    step("Performing Atomic Checkout for Alice")
     initial_laptop_stock = store.get_product(p_laptop.id).stock
     order_alice = store.checkout(alice.id, extra_policies=[promo])
     print(f"  {order_alice}")
@@ -127,9 +127,9 @@ def main() -> None:
     print(f"  Laptop Stock: Before={initial_laptop_stock}, After={store.get_product(p_laptop.id).stock}")
 
     # =========================================================================
-    # 5. JSON Persistence (Easy Tier)
+    # JSON Persistence
     # =========================================================================
-    step("5. JSON Persistence Roundtrip (Save & Reload)")
+    step("JSON Persistence Roundtrip (Save & Reload)")
     store.save_state()
     print(f"  State saved to '{temp_json}'. Size: {temp_json.stat().st_size} bytes.")
 
@@ -147,9 +147,9 @@ def main() -> None:
     print(f"  Placed Bob's order: {order_bob}")
 
     # =========================================================================
-    # 6. Custom Iterators & Generators (Medium Tier)
+    # Custom Iterators & Generators
     # =========================================================================
-    step("6. Custom Generator (Low-Stock Scanner) & Iterator (Order Batching)")
+    step("Custom Generator (Low-Stock Scanner) & Iterator (Order Batching)")
     print("  Low-Stock Scanner (threshold <= 5 units):")
     for prod in low_stock_scanner(store.list_products(), threshold=5):
         print(f"    - Alert: '{prod.name}' has only {prod.stock} unit(s) left!")
@@ -160,16 +160,16 @@ def main() -> None:
         print(f"    Batch {i}: {[o.id for o in batch]}")
 
     # =========================================================================
-    # 7. Pure Functional Order Analytics Report (Medium Tier)
+    # Pure Functional Order Analytics Report
     # =========================================================================
-    step("7. Pure Functional Order History Report (map / filter / reduce)")
+    step("Pure Functional Order History Report (map / filter / reduce)")
     summary = generate_order_summary(store.list_orders())
     print(summary)
 
     # =========================================================================
-    # 8. Multi-Threaded Concurrency & Race Condition Acceptance Test (Advanced Tier)
+    # Concurrency & Race Condition Acceptance Test
     # =========================================================================
-    step("8. Advanced Concurrency Scenario: Racing 5 Threads for the Last Remaining GPU")
+    step("Concurrency Scenario: Racing 5 Threads for the Last Remaining GPU")
     print("  Target Product: 'Rare Collector GPU' (Initial stock = 1 unit)")
     assert store.get_product(p_gpu.id).stock == 1
 
